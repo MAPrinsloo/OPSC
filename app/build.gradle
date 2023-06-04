@@ -6,6 +6,8 @@ plugins {
 android {
     namespace 'com.example.clockedout'
     compileSdk 33
+    //Enabling view binding
+    viewBinding.enabled = true
 
     defaultConfig {
         applicationId "com.example.clockedout"

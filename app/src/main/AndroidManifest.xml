@@ -27,6 +27,7 @@
             android:name=".Hub"
             android:exported="false"
             android:parentActivityName=".Login" />
+        <!-- parentActivity is used to set the back button-->
         <activity
             android:name=".Categories"
             android:exported="false"
