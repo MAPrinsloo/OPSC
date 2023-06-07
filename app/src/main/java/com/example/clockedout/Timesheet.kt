@@ -22,16 +22,17 @@ import java.util.*
 import android.util.Base64
 
 class Timesheet : AppCompatActivity() {
+    //Array of categories.
     private var arrCat = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //Binding
+        //Binding.
         val binding = ActivityTimesheetBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //Populate Spinner
+        //Populate Spinner.
         populateSpinner(binding)
-        //Module Manual
+        //Using the camera - Code from Module Manual.
         val getResult = registerForActivityResult( ActivityResultContracts.StartActivityForResult())
         {
             if (it.resultCode == Activity.RESULT_OK && it.data != null){
@@ -40,10 +41,10 @@ class Timesheet : AppCompatActivity() {
             }
         }
         //----------------------------------------------------------------------------------------//
-        //btnClock click
+        //https://www.baeldung.com/kotlin/string-to-date
+        //btnClock click.
         binding.btnClock.setOnClickListener()
         {
-            //https://www.baeldung.com/kotlin/string-to-date
             try {
                 var requiredFieldsFilled = true
                 val etDate = binding.etDate.text.toString()
@@ -52,6 +53,7 @@ class Timesheet : AppCompatActivity() {
                 val etCategory = binding.spCategories.selectedItem.toString()
                 val etDescription = binding.etDescription.text.toString()
                 val image = binding.ibtnAddImage.drawable.toBitmap()
+                //Data Validation.
                 if (etDate.isEmpty())
                 {
                     binding.etDate.error = "enter a date dd/MM/yyyy."
@@ -81,7 +83,7 @@ class Timesheet : AppCompatActivity() {
             }
         }
         //----------------------------------------------------------------------------------------//
-        //
+        //Image button for taking a picture.
         binding.ibtnAddImage.setOnClickListener()
         {
             try {
@@ -95,40 +97,40 @@ class Timesheet : AppCompatActivity() {
         }
     }
     //----------------------------------------------------------------------------------------//
-    //
+    //Saving the data entered into the shared preferences.
     private fun saveData(date: Date, startTime: Time, endTime: Time,category: String ,description: String, image: Bitmap) {
         //https://stackoverflow.com/questions/70367909/converting-timestamp-value-to-12-24-hour-time-value-in-kotlin
         try {
-            //Timesheet counter
+            //Timesheet counter -   Used for assigning a key to entries.
             val sharedTimesheetCounter = getSharedPreferences("SharedTimesheetCounter",Context.MODE_PRIVATE)
             var counterEditor = sharedTimesheetCounter.edit()
             var counter : Int = sharedTimesheetCounter.getInt("Counter",0).toInt()
             counter += 1
             counterEditor.putInt("Counter", counter)
             counterEditor.commit()
-            //Category Saved
+            //Category Saved -      Saving the Category of the entered timesheet entry.
             val sharedTimesheetCategory =  getSharedPreferences("SharedTimesheetCategory",Context.MODE_PRIVATE)
             var timesheetCategoryEditor = sharedTimesheetCategory.edit()
             timesheetCategoryEditor.putString(counter.toString(), category)
             timesheetCategoryEditor.commit()
-            //Date Saved
+            //Date Saved -          Saving the Date of the entered timesheet entry.
             val sharedTimesheetDate =  getSharedPreferences("SharedTimesheetDate",Context.MODE_PRIVATE)
             var timesheetDateEditor = sharedTimesheetDate.edit()
             timesheetDateEditor.putString(counter.toString(), date.toString())
             timesheetDateEditor.commit()
-            //Start Time Saved
+            //Start Time Saved -    Saving the start time of the entered timesheet entry.
             val sharedTimesheetStartTime =  getSharedPreferences("SharedTimesheetStartTime",Context.MODE_PRIVATE)
             var timesheetStartTimeEditor = sharedTimesheetStartTime.edit()
             timesheetStartTimeEditor.putString(counter.toString(), startTime.toString())
             timesheetStartTimeEditor.commit()
-            //End Time Saved
+            //End Time Saved -      Saving the end time of the entered timesheet entry.
             val sharedTimesheetEndTime =  getSharedPreferences("SharedTimesheetEndTime",Context.MODE_PRIVATE)
             var timesheetEndTimeEditor = sharedTimesheetEndTime.edit()
             timesheetEndTimeEditor.putString(counter.toString(), endTime.toString())
             timesheetEndTimeEditor.commit()
             //https://www.c-sharpcorner.com/article/how-to-store-and-retrieve-the-image-using-sharedpreferences-in-android/
             //https://stackoverflow.com/questions/8586242/how-to-store-images-using-sharedpreference-in-android
-            //Picture Saved
+            //Picture Saved -       Saving the Picture of the entered timesheet entry.
             val baos = ByteArrayOutputStream()
             image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
             val b = baos.toByteArray()
@@ -137,7 +139,7 @@ class Timesheet : AppCompatActivity() {
             var timesheetImageEditor = sharedTimesheetImage.edit()
             timesheetImageEditor.putString(counter.toString(), encodedImage)
             timesheetImageEditor.commit()
-            //Timesheet Saved
+            //Timesheet Saved -     Saving the full timesheet in a format to be displayed in a listview.
             val sharedTimesheetItem =  getSharedPreferences("SharedTimesheetItem",Context.MODE_PRIVATE)
             var timesheetItemEditor = sharedTimesheetItem.edit()
             timesheetItemEditor.putString(counter.toString(),   "Category:\t$category\r\n" +
@@ -146,7 +148,7 @@ class Timesheet : AppCompatActivity() {
                                                                 "End Time:\t$endTime\r\n" +
                                                                 "Description:\t$description")
             timesheetItemEditor.commit()
-            //Feedback Message
+            //Feedback Message.
             Toast.makeText(this, "Timesheet Capture", Toast.LENGTH_SHORT).show()
             Toast.makeText(this,    "Category:\t$category\r\n" +
                                                 "Date:\t$date\r\n" +
@@ -161,9 +163,10 @@ class Timesheet : AppCompatActivity() {
 
     }
     //----------------------------------------------------------------------------------------//
-    //
+    //Populating the spinner with categories.
     private  fun populateSpinner(binding: ActivityTimesheetBinding)
     {
+        //Populating the array of categories with SharedCategories.
         val sharedPreferences = getSharedPreferences("SharedCategories", Context.MODE_PRIVATE)
         val allEntries: Map<String, *> = sharedPreferences.all
         for ((key, value) in allEntries) {
@@ -175,6 +178,8 @@ class Timesheet : AppCompatActivity() {
         binding.spCategories.adapter = adapter
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
+    //----------------------------------------------------------------------------------------//
+    //Returns a date if valid, if not populates error.
     private fun getDate(binding: ActivityTimesheetBinding,etDate: String): Date?
     {
         val formatter = SimpleDateFormat("dd/MM/yyyy")
@@ -188,6 +193,8 @@ class Timesheet : AppCompatActivity() {
         }
         return date
     }
+    //----------------------------------------------------------------------------------------//
+    //Returns a start time if valid, if not populates error.
     private fun getStartTime(binding: ActivityTimesheetBinding,etStartTime: String): Time?
     {
         val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -201,6 +208,9 @@ class Timesheet : AppCompatActivity() {
         }
         return startTime
     }
+    //----------------------------------------------------------------------------------------//
+    //https://stackoverflow.com/questions/70367909/converting-timestamp-value-to-12-24-hour-time-value-in-kotlin
+    //Returns a end time if valid, if not populates error.
     private fun getEndTime(binding: ActivityTimesheetBinding,etEndTime: String): Time?
     {
         val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())

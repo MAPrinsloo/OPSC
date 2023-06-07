@@ -9,7 +9,6 @@ import com.example.clockedout.databinding.ActivityProgressBinding
 class Progress : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //
         //Binding
         val binding = ActivityProgressBinding.inflate(layoutInflater)
         setContentView(binding.root)
