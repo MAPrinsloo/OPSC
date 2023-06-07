@@ -26,13 +26,21 @@ class Categories : AppCompatActivity() {
         binding.btnCreate.setOnClickListener()
         {
             try {
-                var Category : String = binding.etCatName.text.toString()
-                Capture(Category)
-                PopulateSpinner(binding)
+                var category : String = binding.etCatName.text.toString()
+                if (category != "")
+                {
+                    Capture(category)
+                    PopulateSpinner(binding)
+                }
+                else
+                {
+                    binding.etCatName.error = "Please enter a Category"
+                }
             }
             catch (e: java.lang.IllegalArgumentException)
             {
                 Toast.makeText(this,"Error Occurred, Ensure all values are entered correctly.", Toast.LENGTH_LONG).show()
+                binding.etCatName.error = "Please enter a Category"
             }
         }
         //----------------------------------------------------------------------------------------//
@@ -51,6 +59,7 @@ class Categories : AppCompatActivity() {
         }
     }
     //----------------------------------------------------------------------------------------//
+    //Capture Method
     private fun Capture(Category: String)
     {
         //
@@ -65,9 +74,11 @@ class Categories : AppCompatActivity() {
         var catEditor = sharedPreference.edit()
         catEditor.putString(counter.toString(), Category)
         catEditor.commit()
+        arrCat.clear()
         Toast.makeText(this,"Category Captured", Toast.LENGTH_SHORT).show()
     }
-
+    //----------------------------------------------------------------------------------------//
+    //Delete Method
     private fun Delete(itemToDelete: String)
     {
         val sharedPreference =  getSharedPreferences("SharedCategories",Context.MODE_PRIVATE)
@@ -75,6 +86,7 @@ class Categories : AppCompatActivity() {
         var counter: Int = 0
 
         catEditor.clear()
+        catEditor.commit()
         for (category in arrCat)
         {
             if(!category.equals(itemToDelete))
@@ -89,6 +101,57 @@ class Categories : AppCompatActivity() {
         var counterEditor = sharedCategoryCounter.edit()
         counterEditor.putInt("Counter", counter)
         counterEditor.commit()
+        repopulateArrays(itemToDelete)
+        Toast.makeText(this,"Category Deleted", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun repopulateArrays(categoryToDelete: String)
+    {
+        val sharedTimeSheetItem = getSharedPreferences("SharedTimesheetItem", Context.MODE_PRIVATE)
+        val sharedTimesheetCategory =  getSharedPreferences("SharedTimesheetCategory",Context.MODE_PRIVATE)
+        val sharedTimesheetDate =  getSharedPreferences("SharedTimesheetDate",Context.MODE_PRIVATE)
+        val sharedTimesheetStartTime =  getSharedPreferences("SharedTimesheetStartTime",Context.MODE_PRIVATE)
+        val sharedTimesheetEndTime =  getSharedPreferences("SharedTimesheetEndTime",Context.MODE_PRIVATE)
+        val sharedTimesheetImage =  getSharedPreferences("SharedTimesheetImage",Context.MODE_PRIVATE)
+        val sharedTimesheetItem =  getSharedPreferences("SharedTimesheetItem",Context.MODE_PRIVATE)
+
+        var timesheetCategoryEditor = sharedTimesheetCategory.edit()
+        var timesheetDateEditor = sharedTimesheetDate.edit()
+        var timesheetStartTimeEditor = sharedTimesheetStartTime.edit()
+        var timesheetEndTimeEditor = sharedTimesheetEndTime.edit()
+        var timesheetImageEditor = sharedTimesheetImage.edit()
+        var timesheetItemEditor = sharedTimesheetItem.edit()
+
+
+
+
+        val allTimeSheetEntries: Map<String, *> = sharedTimeSheetItem.all
+        for ((key, value) in allTimeSheetEntries) {
+            if ((value).toString().equals(categoryToDelete)){
+                timesheetCategoryEditor.remove(key)
+                timesheetCategoryEditor.commit()
+
+                timesheetDateEditor.remove(key)
+                timesheetDateEditor.commit()
+
+
+                timesheetStartTimeEditor.remove(key)
+                timesheetStartTimeEditor.commit()
+
+
+                timesheetEndTimeEditor.remove(key)
+                timesheetEndTimeEditor.commit()
+
+
+                timesheetImageEditor.remove(key)
+                timesheetImageEditor.commit()
+
+
+                timesheetItemEditor.remove(key)
+                timesheetItemEditor.commit()
+
+            }
+        }
     }
 
     private  fun PopulateSpinner(binding: ActivityCategoriesBinding)
